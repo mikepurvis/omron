@@ -26,6 +26,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
 #include <ros/ros.h>
 #include <boost/shared_ptr.hpp>
+#include <diagnostic_updater/diagnostic_updater.h>
+#include <diagnostic_updater/update_functions.h>
 #include <sensor_msgs/LaserScan.h>
 
 #include "odva_ethernetip/socket/tcp_socket.h"
@@ -40,6 +42,8 @@ using sensor_msgs::LaserScan;
 using eip::socket::TCPSocket;
 using eip::socket::UDPSocket;
 using namespace omron_os32c_driver;
+
+double RATE = 12.856;
 
 int main(int argc, char *argv[])
 {
@@ -56,6 +60,12 @@ int main(int argc, char *argv[])
 
   // publisher for laserscans
   ros::Publisher laserscan_pub = nh.advertise<LaserScan>("scan", 1);
+
+  // diagnostics for frequency, monitor with 0.1 tolerance
+  diagnostic_updater::Updater updater;
+  updater.setHardwareID(host);
+  diagnostic_updater::FrequencyStatus frequency_status(diagnostic_updater::FrequencyStatusParam(&RATE, &RATE));
+  updater.add(frequency_status);
 
   boost::asio::io_service io_service;
   shared_ptr<TCPSocket> socket = shared_ptr<TCPSocket>(new TCPSocket(io_service));
@@ -112,6 +122,10 @@ int main(int argc, char *argv[])
       laserscan_msg.header.stamp = ros::Time::now();
       laserscan_msg.header.seq++;
       laserscan_pub.publish(laserscan_msg);
+
+      // Tick the frequency and update the diagnostics
+      frequency_status.tick();
+      updater.update();
 
       // Every tenth message received, send the keepalive message in response.
       // TODO: Make this time-based instead of message-count based.

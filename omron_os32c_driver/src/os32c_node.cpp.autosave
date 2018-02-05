@@ -58,6 +58,8 @@ int main(int argc, char *argv[])
   // publisher for laserscans
   ros::Publisher laserscan_pub = nh.advertise<LaserScan>("scan", 1);
 
+  std::cout << local_ip << std::endl;
+
   boost::asio::io_service io_service;
   shared_ptr<TCPSocket> socket = shared_ptr<TCPSocket>(new TCPSocket(io_service));
   shared_ptr<UDPSocket> io_socket = shared_ptr<UDPSocket>(new UDPSocket(io_service, 2222, local_ip));
@@ -87,7 +89,7 @@ int main(int argc, char *argv[])
 
   try
   {
-    os32c.startUDPIO();
+    os32c.startUD PIO();
     os32c.sendMeasurmentReportConfigUDP();
   }
   catch (std::logic_error ex)

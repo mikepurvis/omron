@@ -38,9 +38,8 @@ using namespace eip;
 using namespace eip::serialization;
 using namespace boost::asio;
 
-class MeasurementReportConfigTest : public :: testing :: Test
+class MeasurementReportConfigTest : public ::testing ::Test
 {
-
 };
 
 TEST_F(MeasurementReportConfigTest, test_deserialize)
